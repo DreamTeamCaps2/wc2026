@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA World Cup 2026 - Lịch Thi Đấu & Dự Đoán</title>
+    <meta name="description" content="Theo dõi lịch thi đấu FIFA World Cup 2026, tỉ số trực tiếp và dự đoán kết quả bằng AI từ 5 nguồn phân tích uy tín.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Settings Modal for API Keys -->
+    <div id="settings-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content settings-modal-content">
+            <button class="modal-close" id="settings-close">&times;</button>
+            <h2 class="modal-title">⚙️ Cài Đặt API Keys</h2>
+            <p class="settings-desc">Nhập API keys để kích hoạt đầy đủ tính năng. Dữ liệu được lưu trên trình duyệt của bạn.</p>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label for="fd-api-key">🔑 Football-Data.org API Key</label>
+                    <p class="form-hint">Đăng ký miễn phí tại <a href="https://www.football-data.org/client/register" target="_blank">football-data.org</a></p>
+                    <input type="text" id="fd-api-key" placeholder="Nhập API key..." autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="gemini-api-key">🤖 Google Gemini API Key</label>
+                    <p class="form-hint">Lấy key tại <a href="https://aistudio.google.com/apikey" target="_blank">AI Studio</a></p>
+                    <input type="text" id="gemini-api-key" placeholder="Nhập API key..." autocomplete="off">
+                </div>
+                <button id="save-settings" class="btn-primary">💾 Lưu Cài Đặt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Modal -->
+    <div id="prediction-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content prediction-modal-content">
+            <button class="modal-close" id="prediction-close">&times;</button>
+            <div id="prediction-body"></div>
+        </div>
+    </div>
+
+    <!-- Team Squad Modal -->
+    <div id="team-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content team-modal-content">
+            <button class="modal-close" id="team-close">&times;</button>
+            <div id="team-body"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-inner">
+                <div class="header-brand">
+                    <div class="header-logo">
+                        <span class="logo-icon">⚽</span>
+                        <div class="logo-text">
+                            <h1>WORLD CUP 2026</h1>
+                            <span class="logo-subtitle">USA • Mexico • Canada</span>
+                        </div>
+                    </div>
+                    <button id="settings-btn" class="settings-btn" title="Cài đặt API Keys">⚙️</button>
+                </div>
+                <div class="header-countdown" id="countdown-bar">
+                    <div class="countdown-label">🔴 ĐANG DIỄN RA</div>
+                    <div class="countdown-next" id="next-match-info"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Filter Bar -->
+        <section class="filter-section">
+            <div class="filter-bar">
+                <div class="filter-groups">
+                    <button class="filter-chip active" data-filter="all">Tất cả</button>
+                    <div class="filter-divider"></div>
+                    <button class="filter-chip" data-filter="status-finished">✅ Đã đấu</button>
+                    <button class="filter-chip" data-filter="status-live">🔴 Đang đấu</button>
+                    <button class="filter-chip" data-filter="status-scheduled">⏳ Sắp đấu</button>
+                </div>
+                <div class="filter-controls">
+                    <div class="filter-select-wrapper">
+                        <select id="group-filter" class="filter-select">
+                            <option value="all">Tất cả bảng</option>
+                            <option value="GROUP_A">Bảng A</option>
+                            <option value="GROUP_B">Bảng B</option>
+                            <option value="GROUP_C">Bảng C</option>
+                            <option value="GROUP_D">Bảng D</option>
+                            <option value="GROUP_E">Bảng E</option>
+                            <option value="GROUP_F">Bảng F</option>
+                            <option value="GROUP_G">Bảng G</option>
+                            <option value="GROUP_H">Bảng H</option>
+                            <option value="GROUP_I">Bảng I</option>
+                            <option value="GROUP_J">Bảng J</option>
+                            <option value="GROUP_K">Bảng K</option>
+                            <option value="GROUP_L">Bảng L</option>
+                        </select>
+                    </div>
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" class="search-input" placeholder="Tìm đội...">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Match Stats Bar -->
+        <section class="stats-bar" id="stats-bar">
+            <div class="stat-item">
+                <span class="stat-number" id="stat-total">0</span>
+                <span class="stat-label">Tổng trận</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="stat-finished">0</span>
+                <span class="stat-label">Đã đấu</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="stat-live">0</span>
+                <span class="stat-label">Đang đấu</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="stat-upcoming">0</span>
+                <span class="stat-label">Sắp đấu</span>
+            </div>
+        </section>
+
+        <!-- Matches Container -->
+        <main class="matches-container" id="matches-container">
+            <!-- Loading Skeleton -->
+            <div class="loading-skeleton" id="loading-skeleton">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Dữ liệu từ <a href="https://www.football-data.org" target="_blank">football-data.org</a> • Dự đoán bởi <a href="https://ai.google.dev" target="_blank">Gemini AI</a></p>
+            <p class="footer-disclaimer">⚠️ Dự đoán chỉ mang tính tham khảo, không đảm bảo độ chính xác.</p>
+        </footer>
+    </div>
+
+    <script src="js/utils/api.js"></script>
+    <script src="js/components/matchCard.js"></script>
+    <script src="js/components/predictionModal.js"></script>
+    <script src="js/components/teamModal.js"></script>
+    <script src="js/components/filterBar.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

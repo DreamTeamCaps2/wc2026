@@ -1,0 +1,2 @@
+# Python standard library only — no external packages needed
+# Render.com requires this file to detect Python projects
